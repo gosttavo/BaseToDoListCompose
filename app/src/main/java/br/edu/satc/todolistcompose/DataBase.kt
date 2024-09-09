@@ -12,35 +12,28 @@ import androidx.room.RoomDatabase
 import androidx.room.Update
 
 @Entity
-data class User(
+data class Todo(
     @PrimaryKey(autoGenerate = true) val uid: Int,
-    @ColumnInfo(name = "first_name") val firstName: String?,
-    @ColumnInfo(name = "last_name") val lastName: String?
+    @ColumnInfo(name = "title") val title: String?,
+    @ColumnInfo(name = "description") val description: String?
 )
 
 @Dao
-interface UserDao {
-    @Query("SELECT * FROM user")
-    fun getAll(): List<User>
-
-    @Query("SELECT * FROM user WHERE uid IN (:userIdList)")
-    fun getAllById(userIdList: IntArray): List<User>
-
-    @Query("SELECT * FROM user WHERE first_name LIKE :first AND " +
-            "last_name LIKE :last LIMIT 1")
-    fun findByName(first: String, last: String): User
+interface TodoDao {
+    @Query("SELECT * FROM todo")
+    fun getAll(): List<Todo>
 
     @Update
-    fun updateAll(vararg users: User)
+    fun updateAll(vararg todos: Todo)
 
     @Insert
-    fun insertAll(vararg users: User)
+    fun insertAll(vararg todos: Todo)
 
     @Delete
-    fun delete(user: User)
+    fun delete(todo: Todo)
 }
 
-@Database(entities = [User::class], version = 1)
+@Database(entities = [Todo::class], version = 1)
 abstract class AppDatabase: RoomDatabase() {
-    abstract fun userDao(): UserDao
+    abstract fun todoDao(): TodoDao
 }

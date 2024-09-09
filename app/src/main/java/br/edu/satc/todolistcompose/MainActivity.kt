@@ -26,9 +26,9 @@ class MainActivity : ComponentActivity() {
             .allowMainThreadQueries()
             .build()
 
-        val userDao = db.userDao()
+        val todoDao = db.todoDao()
 
-        val userList: List<User> = userDao.getAll()
+        val userList: List<Todo> = todoDao.getAll()
 
         setContent {
             ToDoListComposeTheme {
