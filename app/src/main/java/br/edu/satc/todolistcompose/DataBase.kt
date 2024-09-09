@@ -12,28 +12,29 @@ import androidx.room.RoomDatabase
 import androidx.room.Update
 
 @Entity
-data class Todo(
+data class Task(
     @PrimaryKey(autoGenerate = true) val uid: Int,
-    @ColumnInfo(name = "title") val title: String?,
-    @ColumnInfo(name = "description") val description: String?
+    @ColumnInfo(name = "title") val title: String,
+    @ColumnInfo(name = "description") val description: String,
+    @ColumnInfo(name = "complete") val complete: Boolean
 )
 
 @Dao
-interface TodoDao {
-    @Query("SELECT * FROM todo")
-    fun getAll(): List<Todo>
+interface TaskDao {
+    @Query("SELECT * FROM task")
+    fun getAll(): List<Task>
 
     @Update
-    fun updateAll(vararg todos: Todo)
+    fun updateAll(vararg todos: Task)
 
     @Insert
-    fun insertAll(vararg todos: Todo)
+    fun insertAll(vararg todos: Task)
 
     @Delete
-    fun delete(todo: Todo)
+    fun delete(todo: Task)
 }
 
-@Database(entities = [Todo::class], version = 1)
+@Database(entities = [Task::class], version = 1)
 abstract class AppDatabase: RoomDatabase() {
-    abstract fun todoDao(): TodoDao
+    abstract fun taskDao(): TaskDao
 }

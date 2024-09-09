@@ -29,6 +29,7 @@ import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,19 +40,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import br.edu.satc.todolistcompose.Task
+import br.edu.satc.todolistcompose.TaskDao
 import br.edu.satc.todolistcompose.TaskData
 import br.edu.satc.todolistcompose.ui.components.TaskCard
 import kotlinx.coroutines.launch
 
-
-@Preview(showBackground = true)
+//@Preview(showBackground = true)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(taskDao: TaskDao) {
 
     // states by remember
     // Guardam valores importantes de controle em nossa home
     var showBottomSheet by remember { mutableStateOf(false) }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+
+    var taskList by remember { mutableStateOf(listOf<Task>()) }
+
+    LaunchedEffect(Unit) {
+        taskList = taskDao.getAll()
+    }
 
     /**
      * O componente Scaffold facilita a construção de telas seguindo as guidelines
@@ -119,19 +127,18 @@ fun HomeScreen() {
          * O que aparece no "meio".
          * Para ficar mais organizado, montei o conteúdo em functions separadas.
          * */
-        HomeContent(innerPadding)
+        HomeContent(innerPadding, taskList)
         NewTask(showBottomSheet = showBottomSheet) { showBottomSheet = false }
 
     }
 }
 
 @Composable
-fun HomeContent(innerPadding: PaddingValues) {
-
-    val tasks = mutableListOf<TaskData>()
-    for (i in 0..5) {
-        tasks.add(TaskData("Tarefa " + i, "Descricao " + i, i % 2 == 0))
-    }
+fun HomeContent(
+    innerPadding: PaddingValues,
+    taskList: List<Task>
+) {
+    val tasks = taskList
 
     /**
      * Aqui simplesmente temos uma Column com o nosso conteúdo.

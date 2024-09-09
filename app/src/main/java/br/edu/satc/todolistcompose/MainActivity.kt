@@ -26,9 +26,7 @@ class MainActivity : ComponentActivity() {
             .allowMainThreadQueries()
             .build()
 
-        val todoDao = db.todoDao()
-
-        val userList: List<Todo> = todoDao.getAll()
+        val taskDao = db.taskDao()
 
         setContent {
             ToDoListComposeTheme {
@@ -37,7 +35,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    HomeScreen()
+                    HomeScreen(taskDao)
                 }
             }
         }
