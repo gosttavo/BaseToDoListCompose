@@ -30,7 +30,8 @@ import br.edu.satc.todolistcompose.ui.theme.ToDoListComposeTheme
 fun TaskCard(
     title: String = "Task title",
     description: String = "Task description",
-    complete: Boolean = false
+    complete: Boolean = false,
+    onCompleteTask: (complete: Boolean) -> Unit
 ) {
     val taskTitle by remember {
         mutableStateOf(title)
@@ -75,6 +76,6 @@ fun TaskCard(
 @Composable
 fun TaskCardPreview() {
     ToDoListComposeTheme {
-        TaskCard()
+        TaskCard(){}
     }
 }

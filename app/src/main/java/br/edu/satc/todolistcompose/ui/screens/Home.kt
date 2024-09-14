@@ -46,20 +46,17 @@ import br.edu.satc.todolistcompose.TaskData
 import br.edu.satc.todolistcompose.ui.components.TaskCard
 import kotlinx.coroutines.launch
 
-//@Preview(showBackground = true)
 @Composable
-fun HomeScreen(taskDao: TaskDao) {
+fun HomeScreen(
+    tasks: List<Task>,
+    onNewTaskCreated: (newTask: Task) -> Unit,
+    onCompleteTask: (task: Task, complete: Boolean) -> Unit
+) {
 
     // states by remember
     // Guardam valores importantes de controle em nossa home
     var showBottomSheet by remember { mutableStateOf(false) }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-
-    var taskList by remember { mutableStateOf(listOf<Task>()) }
-
-    LaunchedEffect(Unit) {
-        taskList = taskDao.getAll()
-    }
 
     /**
      * O componente Scaffold facilita a construção de telas seguindo as guidelines
@@ -127,8 +124,18 @@ fun HomeScreen(taskDao: TaskDao) {
          * O que aparece no "meio".
          * Para ficar mais organizado, montei o conteúdo em functions separadas.
          * */
-        HomeContent(innerPadding, taskList)
-        NewTask(showBottomSheet = showBottomSheet) { showBottomSheet = false }
+        HomeContent(
+            innerPadding,
+            tasks = tasks,
+            onCompleteTask = { task, complete -> onCompleteTask(task, complete) }
+        )
+
+        NewTask(showBottomSheet = showBottomSheet) {
+            showBottomSheet = false
+            if (it != null) {
+                onNewTaskCreated(it)
+            }
+        }
 
     }
 }
@@ -136,10 +143,9 @@ fun HomeScreen(taskDao: TaskDao) {
 @Composable
 fun HomeContent(
     innerPadding: PaddingValues,
-    taskList: List<Task>
+    tasks: List<Task>,
+    onCompleteTask: (task: Task, complete: Boolean) -> Unit
 ) {
-    val tasks = taskList
-
     /**
      * Aqui simplesmente temos uma Column com o nosso conteúdo.
      * A chamada verticalScroll(rememberScrollState()), passada para o Modifier,
@@ -159,7 +165,9 @@ fun HomeContent(
         verticalArrangement = Arrangement.Top
     ) {
         for (task in tasks) {
-            TaskCard(task.title, task.description, task.complete)
+            TaskCard(task.title, task.description, task.complete) {
+                onCompleteTask(task, it)
+            }
         }
     }
 }
@@ -169,7 +177,7 @@ fun HomeContent(
  * Aqui podemos "cadastrar uma nova Task".
  */
 @Composable
-fun NewTask(showBottomSheet: Boolean, onComplete: () -> Unit) {
+fun NewTask(showBottomSheet: Boolean, onComplete: (newTask: Task?) -> Unit) {
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     var taskTitle by remember {
@@ -182,7 +190,7 @@ fun NewTask(showBottomSheet: Boolean, onComplete: () -> Unit) {
     if (showBottomSheet) {
         ModalBottomSheet(
             onDismissRequest = {
-                onComplete()
+                onComplete(null)
             },
             sheetState = sheetState,
 
@@ -206,7 +214,7 @@ fun NewTask(showBottomSheet: Boolean, onComplete: () -> Unit) {
                 Button(modifier = Modifier.padding(top = 4.dp), onClick = {
                     scope.launch { sheetState.hide() }.invokeOnCompletion {
                         if (!sheetState.isVisible) {
-                            onComplete()
+                            onComplete(Task(0, taskTitle, taskDescription, false))
                         }
                     }
                 }) {
